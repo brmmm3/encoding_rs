@@ -321,7 +321,7 @@ mod tests {
     #[test]
     fn test_shift_jis_decode() {
         // Empty
-        decode_shift_jis(b"", &"");
+        decode_shift_jis(b"", "");
 
         // ASCII
         decode_shift_jis(b"\x61\x62", "\u{0061}\u{0062}");

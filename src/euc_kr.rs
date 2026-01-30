@@ -255,7 +255,7 @@ fn ksx1001_encode_hangul(bmp: u16, _: u16) -> (u8, u8) {
             } else {
                 0x41
             };
-            (lead as u8, (cp949_trail + offset) as u8)
+            (lead, cp949_trail + offset)
         }
     }
 }
@@ -378,7 +378,7 @@ mod tests {
     #[test]
     fn test_euc_kr_decode() {
         // Empty
-        decode_euc_kr(b"", &"");
+        decode_euc_kr(b"", "");
 
         // ASCII
         decode_euc_kr(b"\x61\x62", "\u{0061}\u{0062}");

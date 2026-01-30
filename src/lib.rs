@@ -2746,7 +2746,7 @@ impl Encoding {
     pub fn for_label(label: &[u8]) -> Option<&'static Encoding> {
         let mut trimmed = [0u8; LONGEST_LABEL_LENGTH];
         let mut trimmed_pos = 0usize;
-        let mut iter = label.into_iter();
+        let mut iter = label.iter();
         // before
         loop {
             match iter.next() {
@@ -3322,6 +3322,7 @@ impl Encoding {
             .unwrap()
             .next_power_of_two(),
         );
+        #[allow(clippy::uninit_vec)]
         unsafe {
             vec.set_len(valid_up_to);
             core::ptr::copy_nonoverlapping(bytes.as_ptr(), vec.as_mut_ptr(), valid_up_to);
@@ -3452,7 +3453,7 @@ impl Encoding {
 impl PartialEq for Encoding {
     #[inline]
     fn eq(&self, other: &Encoding) -> bool {
-        (self as *const Encoding) == (other as *const Encoding)
+        core::ptr::eq(self, other)
     }
 }
 
@@ -3461,7 +3462,7 @@ impl Eq for Encoding {}
 #[cfg(test)]
 impl PartialOrd for Encoding {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        (self as *const Encoding as usize).partial_cmp(&(other as *const Encoding as usize))
+        Some(self.cmp(other)) 
     }
 }
 
@@ -4353,7 +4354,7 @@ impl Decoder {
     pub fn latin1_byte_compatible_up_to(&self, bytes: &[u8]) -> Option<usize> {
         match self.life_cycle {
             DecoderLifeCycle::Converting => {
-                return self.variant.latin1_byte_compatible_up_to(bytes);
+                self.variant.latin1_byte_compatible_up_to(bytes)
             }
             DecoderLifeCycle::Finished => panic!("Must not use a decoder that has finished."),
             _ => None,

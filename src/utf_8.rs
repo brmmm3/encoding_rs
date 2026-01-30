@@ -868,7 +868,7 @@ impl Utf8Encoder {
         let bytes = src.as_bytes();
         let mut to_write = bytes.len();
         if to_write <= dst.len() {
-            (&mut dst[..to_write]).copy_from_slice(bytes);
+            dst[..to_write].copy_from_slice(bytes);
             return (EncoderResult::InputEmpty, to_write, to_write);
         }
         to_write = dst.len();
@@ -876,7 +876,7 @@ impl Utf8Encoder {
         while (bytes[to_write] & 0xC0) == 0x80 {
             to_write -= 1;
         }
-        (&mut dst[..to_write]).copy_from_slice(&bytes[..to_write]);
+        dst[..to_write].copy_from_slice(&bytes[..to_write]);
         (EncoderResult::OutputFull, to_write, to_write)
     }
 }

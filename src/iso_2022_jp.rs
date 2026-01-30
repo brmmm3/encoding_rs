@@ -190,7 +190,7 @@ impl Iso2022JpDecoder {
                         continue;
                     }
                     self.output_flag = false;
-                    if b >= 0x21u8 && b <= 0x5Fu8 {
+                    if (0x21u8..=0x5Fu8).contains(&b) {
                         destination_handle.write_upper_bmp(u16::from(b) - 0x21u16 + 0xFF61u16);
                         continue;
                     }
@@ -206,7 +206,7 @@ impl Iso2022JpDecoder {
                         continue;
                     }
                     self.output_flag = false;
-                    if b >= 0x21u8 && b <= 0x7Eu8 {
+                    if (0x21u8..=0x7Eu8).contains(&b) {
                         self.lead = b;
                         self.decoder_state = Iso2022JpDecoderState::TrailByte;
                         continue;
@@ -376,6 +376,7 @@ fn is_kanji_mapped(bmp: u16) -> bool {
 #[allow(clippy::redundant_pattern_matching, clippy::if_same_then_else)]
 #[inline(always)]
 fn is_kanji_mapped(bmp: u16) -> bool {
+    #[allow(clippy::match_like_matches_macro)]
     if 0x4EDD == bmp {
         true
     } else if let Some(_) = jis0208_level1_kanji_shift_jis_encode(bmp) {
@@ -407,6 +408,7 @@ fn is_mapped_for_two_byte_encode(bmp: u16) -> bool {
             true
         } else {
             let bmp_minus_space = bmp.wrapping_sub(0x3000);
+            #[allow(clippy::match_like_matches_macro)]
             if bmp_minus_space < 3 {
                 // fast-track common punctuation
                 true
@@ -477,10 +479,7 @@ impl Iso2022JpEncoder {
     }
 
     pub fn has_pending_state(&self) -> bool {
-        match self.state {
-            Iso2022JpEncoderState::Ascii => false,
-            _ => true,
-        }
+        !matches!(self.state, Iso2022JpEncoderState::Ascii)
     }
 
     pub fn max_buffer_length_from_utf16_without_replacement(
@@ -764,7 +763,7 @@ mod tests {
     #[test]
     fn test_iso_2022_jp_decode() {
         // Empty
-        decode_iso_2022_jp(b"", &"");
+        decode_iso_2022_jp(b"", "");
 
         // ASCII
         decode_iso_2022_jp(b"\x61\x62", "\u{0061}\u{0062}");

@@ -388,8 +388,7 @@ mod tests {
         ];
         let first = unsafe { load8_unaligned(basic_latin.as_ptr()) };
         let second = unsafe { load8_unaligned(basic_latin.as_ptr().add(8)) };
-        let mut vec = Vec::with_capacity(16);
-        vec.resize(16, 0u8);
+        let mut vec = vec![0; 16];
         let ptr = vec.as_mut_ptr();
         assert!(simd_is_basic_latin(first | second));
         unsafe {

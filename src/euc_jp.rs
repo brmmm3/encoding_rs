@@ -24,10 +24,7 @@ enum EucJpPending {
 
 impl EucJpPending {
     fn is_none(&self) -> bool {
-        match *self {
-            EucJpPending::None => true,
-            _ => false,
-        }
+        matches!(*self, EucJpPending::None)
     }
 
     fn count(&self) -> usize {
@@ -362,7 +359,7 @@ mod tests {
     #[test]
     fn test_euc_jp_decode() {
         // Empty
-        decode_euc_jp(b"", &"");
+        decode_euc_jp(b"", "");
 
         // ASCII
         decode_euc_jp(b"\x61\x62", "\u{0061}\u{0062}");

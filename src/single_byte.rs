@@ -646,18 +646,11 @@ mod tests {
     fn decode_single_byte(encoding: &'static Encoding, data: &'static [u16; 128]) {
         let mut with_replacement = [0u16; 128];
         let mut it = data.iter().enumerate();
-        loop {
-            match it.next() {
-                Some((i, code_point)) => {
-                    if *code_point == 0 {
-                        with_replacement[i] = 0xFFFD;
-                    } else {
-                        with_replacement[i] = *code_point;
-                    }
-                }
-                None => {
-                    break;
-                }
+        while let Some((i, code_point)) = it.next() {
+            if *code_point == 0 {
+                with_replacement[i] = 0xFFFD;
+            } else {
+                with_replacement[i] = *code_point;
             }
         }
 
@@ -667,18 +660,11 @@ mod tests {
     fn encode_single_byte(encoding: &'static Encoding, data: &'static [u16; 128]) {
         let mut with_zeros = [0u8; 128];
         let mut it = data.iter().enumerate();
-        loop {
-            match it.next() {
-                Some((i, code_point)) => {
-                    if *code_point == 0 {
-                        with_zeros[i] = 0;
-                    } else {
-                        with_zeros[i] = HIGH_BYTES[i];
-                    }
-                }
-                None => {
-                    break;
-                }
+        while let Some((i, code_point)) = it.next() {
+            if *code_point == 0 {
+                with_zeros[i] = 0;
+            } else {
+                with_zeros[i] = HIGH_BYTES[i];
             }
         }
 

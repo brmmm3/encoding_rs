@@ -387,7 +387,7 @@ pub struct ByteSource<'a> {
 
 impl<'a> ByteSource<'a> {
     #[inline(always)]
-    pub fn new(src: &[u8]) -> ByteSource {
+    pub fn new(src: &'a [u8]) -> ByteSource<'a> {
         ByteSource { slice: src, pos: 0 }
     }
     #[inline(always)]
@@ -594,7 +594,7 @@ pub struct Utf16Destination<'a> {
 
 impl<'a> Utf16Destination<'a> {
     #[inline(always)]
-    pub fn new(dst: &mut [u16]) -> Utf16Destination {
+    pub fn new(dst: &'a mut [u16]) -> Utf16Destination<'a> {
         Utf16Destination { slice: dst, pos: 0 }
     }
     #[inline(always)]
@@ -939,7 +939,7 @@ pub struct Utf8Destination<'a> {
 
 impl<'a> Utf8Destination<'a> {
     #[inline(always)]
-    pub fn new(dst: &mut [u8]) -> Utf8Destination {
+    pub fn new(dst: &mut [u8]) -> Utf8Destination<'_> {
         Utf8Destination { slice: dst, pos: 0 }
     }
     #[inline(always)]
@@ -1116,7 +1116,7 @@ impl<'a> Utf8Destination<'a> {
         // Validate first, then memcpy to let memcpy do its thing even for
         // non-ASCII. (And potentially do something better than SSE2 for ASCII.)
         let valid_len = utf8_valid_up_to(&src_remaining[..min_len]);
-        (&mut dst_remaining[..valid_len]).copy_from_slice(&src_remaining[..valid_len]);
+        dst_remaining[..valid_len].copy_from_slice(&src_remaining[..valid_len]);
         source.pos += valid_len;
         self.pos += valid_len;
     }
@@ -1164,7 +1164,7 @@ pub struct Utf16Source<'a> {
 
 impl<'a> Utf16Source<'a> {
     #[inline(always)]
-    pub fn new(src: &[u16]) -> Utf16Source {
+    pub fn new(src: &[u16]) -> Utf16Source<'_> {
         Utf16Source { slice: src, pos: 0 }
     }
     #[inline(always)]
@@ -1272,6 +1272,7 @@ impl<'a> Utf16Source<'a> {
                 Some((non_ascii, consumed)) => {
                     self.pos += consumed;
                     dest.advance(consumed);
+                    #[allow(clippy::len_zero)]
                     if dest.remaining().len() >= 1 {
                         self.pos += 1; // commit to reading `non_ascii`
                         let unit = non_ascii;
@@ -1466,7 +1467,7 @@ pub struct Utf8Source<'a> {
 
 impl<'a> Utf8Source<'a> {
     #[inline(always)]
-    pub fn new(src: &str) -> Utf8Source {
+    pub fn new(src: &str) -> Utf8Source<'_> {
         Utf8Source {
             slice: src.as_bytes(),
             pos: 0,
@@ -1614,6 +1615,7 @@ impl<'a> Utf8Source<'a> {
                 Some((non_ascii, consumed)) => {
                     self.pos += consumed;
                     dest.advance(consumed);
+                    #[allow(clippy::len_zero)]
                     if dest.remaining().len() >= 1 {
                         if non_ascii < 0xE0 {
                             let point = ((u16::from(non_ascii) & 0x1F) << 6)
@@ -1922,7 +1924,7 @@ pub struct ByteDestination<'a> {
 
 impl<'a> ByteDestination<'a> {
     #[inline(always)]
-    pub fn new(dst: &mut [u8]) -> ByteDestination {
+    pub fn new(dst: &mut [u8]) -> ByteDestination<'_> {
         ByteDestination {
             start: dst.as_ptr(),
             slice: dst,
@@ -1930,10 +1932,11 @@ impl<'a> ByteDestination<'a> {
     }
     #[inline(always)]
     pub fn remaining(&mut self) -> &mut [u8] {
-        &mut self.slice
+        self.slice
     }
     #[inline(always)]
     pub fn check_space_one<'b>(&'b mut self) -> Space<ByteOneHandle<'b, 'a>> {
+        #[allow(clippy::len_zero)]
         if self.slice.len() >= 1 {
             Space::Available(ByteOneHandle::new(self))
         } else {

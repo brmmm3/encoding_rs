@@ -279,82 +279,82 @@ mod tests {
     #[test]
     fn test_big5_decode() {
         // Empty
-        decode_big5(b"", &"");
+        decode_big5(b"", "");
 
         // ASCII
-        decode_big5(&[0x61u8, 0x62u8], &"\u{0061}\u{0062}");
+        decode_big5(&[0x61u8, 0x62u8], "\u{0061}\u{0062}");
 
         // Edge cases
-        decode_big5(&[0x87u8, 0x40u8], &"\u{43F0}");
-        decode_big5(&[0xFEu8, 0xFEu8], &"\u{79D4}");
-        decode_big5(&[0xFEu8, 0xFDu8], &"\u{2910D}");
-        decode_big5(&[0x88u8, 0x62u8], &"\u{00CA}\u{0304}");
-        decode_big5(&[0x88u8, 0x64u8], &"\u{00CA}\u{030C}");
-        decode_big5(&[0x88u8, 0x66u8], &"\u{00CA}");
-        decode_big5(&[0x88u8, 0xA3u8], &"\u{00EA}\u{0304}");
-        decode_big5(&[0x88u8, 0xA5u8], &"\u{00EA}\u{030C}");
-        decode_big5(&[0x88u8, 0xA7u8], &"\u{00EA}");
-        decode_big5(&[0x99u8, 0xD4u8], &"\u{8991}");
-        decode_big5(&[0x99u8, 0xD5u8], &"\u{27967}");
-        decode_big5(&[0x99u8, 0xD6u8], &"\u{8A29}");
+        decode_big5(&[0x87u8, 0x40u8], "\u{43F0}");
+        decode_big5(&[0xFEu8, 0xFEu8], "\u{79D4}");
+        decode_big5(&[0xFEu8, 0xFDu8], "\u{2910D}");
+        decode_big5(&[0x88u8, 0x62u8], "\u{00CA}\u{0304}");
+        decode_big5(&[0x88u8, 0x64u8], "\u{00CA}\u{030C}");
+        decode_big5(&[0x88u8, 0x66u8], "\u{00CA}");
+        decode_big5(&[0x88u8, 0xA3u8], "\u{00EA}\u{0304}");
+        decode_big5(&[0x88u8, 0xA5u8], "\u{00EA}\u{030C}");
+        decode_big5(&[0x88u8, 0xA7u8], "\u{00EA}");
+        decode_big5(&[0x99u8, 0xD4u8], "\u{8991}");
+        decode_big5(&[0x99u8, 0xD5u8], "\u{27967}");
+        decode_big5(&[0x99u8, 0xD6u8], "\u{8A29}");
 
         // Edge cases surrounded with ASCII
         decode_big5(
             &[0x61u8, 0x87u8, 0x40u8, 0x62u8],
-            &"\u{0061}\u{43F0}\u{0062}",
+            "\u{0061}\u{43F0}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0xFEu8, 0xFEu8, 0x62u8],
-            &"\u{0061}\u{79D4}\u{0062}",
+            "\u{0061}\u{79D4}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0xFEu8, 0xFDu8, 0x62u8],
-            &"\u{0061}\u{2910D}\u{0062}",
+            "\u{0061}\u{2910D}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0x88u8, 0x62u8, 0x62u8],
-            &"\u{0061}\u{00CA}\u{0304}\u{0062}",
+            "\u{0061}\u{00CA}\u{0304}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0x88u8, 0x64u8, 0x62u8],
-            &"\u{0061}\u{00CA}\u{030C}\u{0062}",
+            "\u{0061}\u{00CA}\u{030C}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0x88u8, 0x66u8, 0x62u8],
-            &"\u{0061}\u{00CA}\u{0062}",
+            "\u{0061}\u{00CA}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0x88u8, 0xA3u8, 0x62u8],
-            &"\u{0061}\u{00EA}\u{0304}\u{0062}",
+            "\u{0061}\u{00EA}\u{0304}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0x88u8, 0xA5u8, 0x62u8],
-            &"\u{0061}\u{00EA}\u{030C}\u{0062}",
+            "\u{0061}\u{00EA}\u{030C}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0x88u8, 0xA7u8, 0x62u8],
-            &"\u{0061}\u{00EA}\u{0062}",
+            "\u{0061}\u{00EA}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0x99u8, 0xD4u8, 0x62u8],
-            &"\u{0061}\u{8991}\u{0062}",
+            "\u{0061}\u{8991}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0x99u8, 0xD5u8, 0x62u8],
-            &"\u{0061}\u{27967}\u{0062}",
+            "\u{0061}\u{27967}\u{0062}",
         );
         decode_big5(
             &[0x61u8, 0x99u8, 0xD6u8, 0x62u8],
-            &"\u{0061}\u{8A29}\u{0062}",
+            "\u{0061}\u{8A29}\u{0062}",
         );
 
         // Bad sequences
-        decode_big5(&[0x80u8, 0x61u8], &"\u{FFFD}\u{0061}");
-        decode_big5(&[0xFFu8, 0x61u8], &"\u{FFFD}\u{0061}");
-        decode_big5(&[0xFEu8, 0x39u8], &"\u{FFFD}\u{0039}");
-        decode_big5(&[0x87u8, 0x66u8], &"\u{FFFD}\u{0066}");
-        decode_big5(&[0x81u8, 0x40u8], &"\u{FFFD}\u{0040}");
-        decode_big5(&[0x61u8, 0x81u8], &"\u{0061}\u{FFFD}");
+        decode_big5(&[0x80u8, 0x61u8], "\u{FFFD}\u{0061}");
+        decode_big5(&[0xFFu8, 0x61u8], "\u{FFFD}\u{0061}");
+        decode_big5(&[0xFEu8, 0x39u8], "\u{FFFD}\u{0039}");
+        decode_big5(&[0x87u8, 0x66u8], "\u{FFFD}\u{0066}");
+        decode_big5(&[0x81u8, 0x40u8], "\u{FFFD}\u{0040}");
+        decode_big5(&[0x61u8, 0x81u8], "\u{0061}\u{FFFD}");
     }
 
     #[test]
