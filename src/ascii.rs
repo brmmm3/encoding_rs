@@ -153,31 +153,33 @@ macro_rules! ascii_alu {
                     //
                     // Safety: This is the naïve code once again, for `until_alignment` bytes
                     while until_alignment != 0 {
-                        let code_unit = *(src.add(offset));
+                        let code_unit = unsafe { *(src.add(offset)) };
                         if code_unit > 127 {
                             // Safety: Upholds safety-usable invariant here
                             return Some((code_unit, offset));
                         }
-                        *(dst.add(offset)) = code_unit as $dst_unit;
+                        unsafe { *(dst.add(offset)) = code_unit as $dst_unit };
                         // Safety: offset is the number of bytes copied so far
                         offset += 1;
                         until_alignment -= 1;
                     }
                     let len_minus_stride = len - ALU_STRIDE_SIZE;
                     loop {
-                        // Safety: num_ascii is known to be a byte index of a non-ascii byte due to stride_fn's invariant
-                        if let Some(num_ascii) = $stride_fn(
-                            // Safety: These are known to be valid and aligned since we have at
-                            // least ALU_STRIDE_SIZE data in these buffers, and offset is the
-                            // number of elements copied so far, which according to the
-                            // until_alignment calculation above will cause both src and dst to be
-                            // aligned to usize after this add
-                            src.add(offset) as *const usize,
-                            dst.add(offset) as *mut usize,
-                        ) {
-                            offset += num_ascii;
-                            // Safety: Upholds safety-usable invariant here by indexing into non-ascii byte
-                            return Some((*(src.add(offset)), offset));
+                        unsafe {
+                            // Safety: num_ascii is known to be a byte index of a non-ascii byte due to stride_fn's invariant
+                            if let Some(num_ascii) = $stride_fn(
+                                // Safety: These are known to be valid and aligned since we have at
+                                // least ALU_STRIDE_SIZE data in these buffers, and offset is the
+                                // number of elements copied so far, which according to the
+                                // until_alignment calculation above will cause both src and dst to be
+                                // aligned to usize after this add
+                                src.add(offset) as *const usize,
+                                dst.add(offset) as *mut usize,
+                            ) {
+                                offset += num_ascii;
+                                // Safety: Upholds safety-usable invariant here by indexing into non-ascii byte
+                                return Some((*(src.add(offset)), offset));
+                            }
                         }
                         // Safety: offset continues to be the number of bytes copied so far, and
                         // maintains usize alignment for the next loop iteration
@@ -196,13 +198,13 @@ macro_rules! ascii_alu {
             // other than src/dst being valid for the the right lens
             while offset < len {
                 // Safety: len invariant used here
-                let code_unit = *(src.add(offset));
+                let code_unit = unsafe { *(src.add(offset)) };
                 if code_unit > 127 {
                     // Safety: Upholds safety-usable invariant here
                     return Some((code_unit, offset));
                 }
                 // Safety: len invariant used here
-                *(dst.add(offset)) = code_unit as $dst_unit;
+                unsafe { *(dst.add(offset)) = code_unit as $dst_unit };
                 offset += 1;
             }
             None
@@ -283,28 +285,30 @@ macro_rules! basic_latin_alu {
                     //
                     // Safety: This is the naïve code once again, for `until_alignment` bytes
                     while until_alignment != 0 {
-                        let code_unit = *(src.add(offset));
+                        let code_unit = unsafe { *(src.add(offset)) };
                         if code_unit > 127 {
                             // Safety: Upholds safety-usable invariant here
                             return Some((code_unit, offset));
                         }
-                        *(dst.add(offset)) = code_unit as $dst_unit;
+                        unsafe { *(dst.add(offset)) = code_unit as $dst_unit };
                         // Safety: offset is the number of bytes copied so far
                         offset += 1;
                         until_alignment -= 1;
                     }
                     let len_minus_stride = len - ALU_STRIDE_SIZE;
                     loop {
-                        if !$stride_fn(
-                            // Safety: These are known to be valid and aligned since we have at
-                            // least ALU_STRIDE_SIZE data in these buffers, and offset is the
-                            // number of elements copied so far, which according to the
-                            // until_alignment calculation above will cause both src and dst to be
-                            // aligned to usize after this add
-                            src.add(offset) as *const usize,
-                            dst.add(offset) as *mut usize,
-                        ) {
-                            break;
+                        unsafe {
+                            if !$stride_fn(
+                                // Safety: These are known to be valid and aligned since we have at
+                                // least ALU_STRIDE_SIZE data in these buffers, and offset is the
+                                // number of elements copied so far, which according to the
+                                // until_alignment calculation above will cause both src and dst to be
+                                // aligned to usize after this add
+                                src.add(offset) as *const usize,
+                                dst.add(offset) as *mut usize,
+                            ) {
+                                break;
+                            }
                         }
                         // Safety: offset continues to be the number of bytes copied so far, and
                         // maintains usize alignment for the next loop iteration
@@ -321,13 +325,13 @@ macro_rules! basic_latin_alu {
             // Safety: This is the naïve code once again, for leftover bytes
             while offset < len {
                 // Safety: len invariant used here
-                let code_unit = *(src.add(offset));
+                let code_unit = unsafe { *(src.add(offset)) };
                 if code_unit > 127 {
                     // Safety: Upholds safety-usable invariant here
                     return Some((code_unit, offset));
                 }
                 // Safety: len invariant used here
-                *(dst.add(offset)) = code_unit as $dst_unit;
+                unsafe { *(dst.add(offset)) = code_unit as $dst_unit };
                 offset += 1;
             }
             None
@@ -378,23 +382,25 @@ macro_rules! latin1_alu {
                 if until_alignment + ALU_STRIDE_SIZE <= len {
                     // Safety: This is the naïve code once again, for `until_alignment` bytes
                     while until_alignment != 0 {
-                        let code_unit = *(src.add(offset));
-                        *(dst.add(offset)) = code_unit as $dst_unit;
+                        let code_unit = unsafe { *(src.add(offset)) };
+                        unsafe { *(dst.add(offset)) = code_unit as $dst_unit };
                         // Safety: offset is the number of bytes copied so far
                         offset += 1;
                         until_alignment -= 1;
                     }
                     let len_minus_stride = len - ALU_STRIDE_SIZE;
                     loop {
-                        $stride_fn(
-                            // Safety: These are known to be valid and aligned since we have at
-                            // least ALU_STRIDE_SIZE data in these buffers, and offset is the
-                            // number of elements copied so far, which according to the
-                            // until_alignment calculation above will cause both src and dst to be
-                            // aligned to usize after this add
-                            src.add(offset) as *const usize,
-                            dst.add(offset) as *mut usize,
-                        );
+                        unsafe {
+                            $stride_fn(
+                                // Safety: These are known to be valid and aligned since we have at
+                                // least ALU_STRIDE_SIZE data in these buffers, and offset is the
+                                // number of elements copied so far, which according to the
+                                // until_alignment calculation above will cause both src and dst to be
+                                // aligned to usize after this add
+                                src.add(offset) as *const usize,
+                                dst.add(offset) as *mut usize,
+                            );
+                        }
                         // Safety: offset continues to be the number of bytes copied so far, and
                         // maintains usize alignment for the next loop iteration
                         offset += ALU_STRIDE_SIZE;
@@ -410,8 +416,8 @@ macro_rules! latin1_alu {
             // Safety: This is the naïve code once again, for leftover bytes
             while offset < len {
                 // Safety: len invariant used here
-                let code_unit = *(src.add(offset));
-                *(dst.add(offset)) = code_unit as $dst_unit;
+                let code_unit = unsafe { *(src.add(offset)) };
+                unsafe { *(dst.add(offset)) = code_unit as $dst_unit };
                 offset += 1;
             }
         }
@@ -1278,10 +1284,12 @@ cfg_if! {
                          ((0x0000_FF00_0000_0000usize & second_word) >> 24) |
                          ((0x0000_00FF_0000_0000usize & second_word) >> 32);
             // Safety: fn invariant used here
-            *dst = first;
-            *(dst.add(1)) = second;
-            *(dst.add(2)) = third;
-            *(dst.add(3)) = fourth;
+            unsafe {
+                *dst = first;
+                *(dst.add(1)) = second;
+                *(dst.add(2)) = third;
+                *(dst.add(3)) = fourth;
+            }
         }
 
         /// Safety: dst must point to valid space for writing two `usize`s
@@ -1304,8 +1312,10 @@ cfg_if! {
                               ((0x0000_0000_00FF_0000usize & third) >> 8) |
                               (0x0000_0000_0000_00FFusize & third);
             // Safety: fn invariant used here
-            *dst = word;
-            *(dst.add(1)) = second_word;
+            unsafe {
+                *dst = word;
+                *(dst.add(1)) = second_word;
+            }
         }
     } else if #[cfg(all(target_endian = "little", target_pointer_width = "32"))] {
         // Aligned ALU word, little-endian, 32-bit
@@ -1712,9 +1722,11 @@ cfg_if! {
         /// Safety-usable invariant: will return byte index of first non-ascii byte
         #[inline(always)]
         unsafe fn validate_ascii_stride(src: *const usize) -> Option<usize> {
-            let word = *src;
-            let second_word = *(src.add(1));
-            find_non_ascii(word, second_word)
+            unsafe {
+                let word = *src;
+                let second_word = *(src.add(1));
+                find_non_ascii(word, second_word)
+            }
         }
 
         /// Safety-usable invariant: will return Some() when it encounters non-ASCII, with the first element in the Some being
@@ -1785,69 +1797,79 @@ cfg_if! {
     } else {
         // Safety: src points to two valid `usize`s, dst points to four valid `usize`s
         #[inline(always)]
-        unsafe fn unpack_latin1_stride_alu(src: *const usize, dst: *mut usize) {
+        fn unpack_latin1_stride_alu(src: *const usize, dst: *mut usize) {
             // Safety: src safety invariant used here
-            let word = *src;
-            let second_word = *(src.add(1));
-            // Safety: dst safety invariant passed down
-            unpack_alu(word, second_word, dst);
+            unsafe {
+                let word = *src;
+                let second_word = *(src.add(1));
+                // Safety: dst safety invariant passed down
+                unpack_alu(word, second_word, dst);
+            }
         }
 
         // Safety: src points to four valid `usize`s, dst points to two valid `usize`s
         #[inline(always)]
-        unsafe fn pack_latin1_stride_alu(src: *const usize, dst: *mut usize) {
+        fn pack_latin1_stride_alu(src: *const usize, dst: *mut usize) {
             // Safety: src safety invariant used here
-            let first = *src;
-            let second = *(src.add(1));
-            let third = *(src.add(2));
-            let fourth = *(src.add(3));
-            // Safety: dst safety invariant passed down
-            pack_alu(first, second, third, fourth, dst);
+            unsafe {
+                let first = *src;
+                let second = *(src.add(1));
+                let third = *(src.add(2));
+                let fourth = *(src.add(3));
+                // Safety: dst safety invariant passed down
+                pack_alu(first, second, third, fourth, dst);
+            }
         }
 
         // Safety: src points to two valid `usize`s, dst points to four valid `usize`s
         #[inline(always)]
-        unsafe fn ascii_to_basic_latin_stride_alu(src: *const usize, dst: *mut usize) -> bool {
+        fn ascii_to_basic_latin_stride_alu(src: *const usize, dst: *mut usize) -> bool {
             // Safety: src safety invariant used here
-            let word = *src;
-            let second_word = *(src.add(1));
-            // Check if the words contains non-ASCII
-            if (word & ASCII_MASK) | (second_word & ASCII_MASK) != 0 {
-                return false;
+            unsafe {
+                let word = *src;
+                let second_word = *(src.add(1));
+                // Check if the words contains non-ASCII
+                if (word & ASCII_MASK) | (second_word & ASCII_MASK) != 0 {
+                    return false;
+                }
+                // Safety: dst safety invariant passed down
+                unpack_alu(word, second_word, dst);
             }
-            // Safety: dst safety invariant passed down
-            unpack_alu(word, second_word, dst);
             true
         }
 
         // Safety: src points four valid `usize`s, dst points to two valid `usize`s
         #[inline(always)]
-        unsafe fn basic_latin_to_ascii_stride_alu(src: *const usize, dst: *mut usize) -> bool {
+        fn basic_latin_to_ascii_stride_alu(src: *const usize, dst: *mut usize) -> bool {
             // Safety: src safety invariant used here
-            let first = *src;
-            let second = *(src.add(1));
-            let third = *(src.add(2));
-            let fourth = *(src.add(3));
-            if (first & BASIC_LATIN_MASK) | (second & BASIC_LATIN_MASK) | (third & BASIC_LATIN_MASK) | (fourth & BASIC_LATIN_MASK) != 0 {
-                return false;
+            unsafe {
+                let first = *src;
+                let second = *(src.add(1));
+                let third = *(src.add(2));
+                let fourth = *(src.add(3));
+                if (first & BASIC_LATIN_MASK) | (second & BASIC_LATIN_MASK) | (third & BASIC_LATIN_MASK) | (fourth & BASIC_LATIN_MASK) != 0 {
+                    return false;
+                }
+                // Safety: dst safety invariant passed down
+                pack_alu(first, second, third, fourth, dst);
             }
-            // Safety: dst safety invariant passed down
-            pack_alu(first, second, third, fourth, dst);
             true
         }
 
         // Safety: src, dst both point to two valid `usize`s each
         // Safety-usable invariant: Will return byte index of first non-ascii byte.
         #[inline(always)]
-        unsafe fn ascii_to_ascii_stride(src: *const usize, dst: *mut usize) -> Option<usize> {
+        fn ascii_to_ascii_stride(src: *const usize, dst: *mut usize) -> Option<usize> {
             // Safety: src safety invariant used here
-            let word = *src;
-            let second_word = *(src.add(1));
-            // Safety: src safety invariant used here
-            *dst = word;
-            *(dst.add(1)) = second_word;
-            // Relies on safety-usable invariant here
-            find_non_ascii(word, second_word)
+            unsafe {
+                let word = *src;
+                let second_word = *(src.add(1));
+                // Safety: src safety invariant used here
+                *dst = word;
+                *(dst.add(1)) = second_word;
+                // Relies on safety-usable invariant here
+                find_non_ascii(word, second_word)
+            }
         }
 
         basic_latin_alu!(ascii_to_basic_latin, u8, u16, ascii_to_basic_latin_stride_alu);
