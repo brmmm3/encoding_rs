@@ -4,6 +4,8 @@
 [![crates.io](https://img.shields.io/crates/v/encoding_rs.svg)](https://crates.io/crates/encoding_rs)
 [![docs.rs](https://docs.rs/encoding_rs/badge.svg)](https://docs.rs/encoding_rs/)
 
+This is a fork from hsivonen/encoding_rs with some updates.
+
 encoding_rs an implementation of the (non-JavaScript parts of) the
 [Encoding Standard](https://encoding.spec.whatwg.org/) written in Rust.
 
@@ -53,7 +55,7 @@ Specifically, encoding_rs does the following:
   workloads than the standard library; hopefully will get upstreamed some
   day) and ASCII.
 
-Additionally, `encoding_rs::mem` does the following:
+Additionally, `encoding_rs2::mem` does the following:
 
 * Checks if a byte buffer contains only ASCII.
 * Checks if a potentially-invalid UTF-16 buffer contains only Basic Latin (ASCII).

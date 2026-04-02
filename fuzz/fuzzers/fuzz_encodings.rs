@@ -12,48 +12,50 @@
 extern crate libfuzzer_sys;
 extern crate encoding_rs;
 
-use encoding_rs::*;
+use encoding_rs2::*;
 
 // Doesn't included ISO-8859-8-I.
-static ENCODINGS: [&'static Encoding; 39] = [&UTF_8_INIT,
-                                             &REPLACEMENT_INIT,
-                                             &GBK_INIT,
-                                             &BIG5_INIT,
-                                             &EUC_JP_INIT,
-                                             &GB18030_INIT,
-                                             &UTF_16BE_INIT,
-                                             &UTF_16LE_INIT,
-                                             &SHIFT_JIS_INIT,
-                                             &EUC_KR_INIT,
-                                             &ISO_2022_JP_INIT,
-                                             &X_USER_DEFINED_INIT,
-                                             &WINDOWS_1250_INIT,
-                                             &WINDOWS_1251_INIT,
-                                             &WINDOWS_1252_INIT,
-                                             &WINDOWS_1253_INIT,
-                                             &WINDOWS_1254_INIT,
-                                             &WINDOWS_1255_INIT,
-                                             &WINDOWS_1256_INIT,
-                                             &WINDOWS_1257_INIT,
-                                             &WINDOWS_1258_INIT,
-                                             &KOI8_U_INIT,
-                                             &MACINTOSH_INIT,
-                                             &IBM866_INIT,
-                                             &KOI8_R_INIT,
-                                             &ISO_8859_2_INIT,
-                                             &ISO_8859_3_INIT,
-                                             &ISO_8859_4_INIT,
-                                             &ISO_8859_5_INIT,
-                                             &ISO_8859_6_INIT,
-                                             &ISO_8859_7_INIT,
-                                             &ISO_8859_10_INIT,
-                                             &ISO_8859_13_INIT,
-                                             &ISO_8859_14_INIT,
-                                             &WINDOWS_874_INIT,
-                                             &ISO_8859_15_INIT,
-                                             &ISO_8859_16_INIT,
-                                             &ISO_8859_8_I_INIT,
-                                             &X_MAC_CYRILLIC_INIT];
+static ENCODINGS: [&'static Encoding; 39] = [
+    &UTF_8_INIT,
+    &REPLACEMENT_INIT,
+    &GBK_INIT,
+    &BIG5_INIT,
+    &EUC_JP_INIT,
+    &GB18030_INIT,
+    &UTF_16BE_INIT,
+    &UTF_16LE_INIT,
+    &SHIFT_JIS_INIT,
+    &EUC_KR_INIT,
+    &ISO_2022_JP_INIT,
+    &X_USER_DEFINED_INIT,
+    &WINDOWS_1250_INIT,
+    &WINDOWS_1251_INIT,
+    &WINDOWS_1252_INIT,
+    &WINDOWS_1253_INIT,
+    &WINDOWS_1254_INIT,
+    &WINDOWS_1255_INIT,
+    &WINDOWS_1256_INIT,
+    &WINDOWS_1257_INIT,
+    &WINDOWS_1258_INIT,
+    &KOI8_U_INIT,
+    &MACINTOSH_INIT,
+    &IBM866_INIT,
+    &KOI8_R_INIT,
+    &ISO_8859_2_INIT,
+    &ISO_8859_3_INIT,
+    &ISO_8859_4_INIT,
+    &ISO_8859_5_INIT,
+    &ISO_8859_6_INIT,
+    &ISO_8859_7_INIT,
+    &ISO_8859_10_INIT,
+    &ISO_8859_13_INIT,
+    &ISO_8859_14_INIT,
+    &WINDOWS_874_INIT,
+    &ISO_8859_15_INIT,
+    &ISO_8859_16_INIT,
+    &ISO_8859_8_I_INIT,
+    &X_MAC_CYRILLIC_INIT,
+];
 
 fn check_utf8(data: &[u8]) {
     if let Err(_) = ::std::str::from_utf8(data) {
@@ -146,8 +148,7 @@ fn encode_from_utf8(encoding: &'static Encoding, data: &[u8]) {
                 } else {
                     let mut total_read = 0;
                     loop {
-                        if let Some(needed) = encoder
-                               .max_buffer_length_from_utf8_if_no_unmappables(
+                        if let Some(needed) = encoder.max_buffer_length_from_utf8_if_no_unmappables(
                             string.len() - total_read,
                         ) {
                             dst.resize(needed, 0);
@@ -164,9 +165,9 @@ fn encode_from_utf8(encoding: &'static Encoding, data: &[u8]) {
             }
             let mut total_read = 0;
             loop {
-                if let Some(needed) = encoder.max_buffer_length_from_utf8_if_no_unmappables(
-                    string.len() - total_read,
-                ) {
+                if let Some(needed) =
+                    encoder.max_buffer_length_from_utf8_if_no_unmappables(string.len() - total_read)
+                {
                     dst.resize(needed, 0);
                     let (result, read, _, _) =
                         encoder.encode_from_utf8(&string[total_read..], &mut dst, false);
@@ -206,7 +207,8 @@ fn encode_from_utf8_without_replacement(encoding: &'static Encoding, data: &[u8]
                     string.push(c);
                 } else {
                     if let Some(needed) =
-                        encoder.max_buffer_length_from_utf8_without_replacement(string.len()) {
+                        encoder.max_buffer_length_from_utf8_without_replacement(string.len())
+                    {
                         dst.resize(needed, 0);
                         let (result, _, _) =
                             encoder.encode_from_utf8_without_replacement(&string, &mut dst, true);
@@ -216,7 +218,8 @@ fn encode_from_utf8_without_replacement(encoding: &'static Encoding, data: &[u8]
                 }
             }
             if let Some(needed) =
-                encoder.max_buffer_length_from_utf8_without_replacement(string.len()) {
+                encoder.max_buffer_length_from_utf8_without_replacement(string.len())
+            {
                 dst.resize(needed, 0);
                 let (result, _, _) =
                     encoder.encode_from_utf8_without_replacement(&string, &mut dst, false);
@@ -260,7 +263,8 @@ fn encode_from_utf16(encoding: &'static Encoding, data: &[u8]) {
         let mut total_read = 0;
         loop {
             if let Some(needed) =
-                encoder.max_buffer_length_from_utf16_if_no_unmappables(chunk.len() - total_read) {
+                encoder.max_buffer_length_from_utf16_if_no_unmappables(chunk.len() - total_read)
+            {
                 dst.resize(needed, 0);
                 let (result, read, _, _) =
                     encoder.encode_from_utf16(&chunk[total_read..], &mut dst, last);
@@ -301,11 +305,11 @@ fn encode_from_utf16_without_replacement(encoding: &'static Encoding, data: &[u8
         let new_offset = offset + chunk_size;
         let chunk = &s[offset..new_offset];
         offset = new_offset;
-        if let Some(needed) = encoder
-               .max_buffer_length_from_utf16_without_replacement(chunk.len()) {
+        if let Some(needed) = encoder.max_buffer_length_from_utf16_without_replacement(chunk.len())
+        {
             dst.resize(needed, 0);
-            let (result, _, _) = encoder
-                .encode_from_utf16_without_replacement(&chunk, &mut dst, last);
+            let (result, _, _) =
+                encoder.encode_from_utf16_without_replacement(&chunk, &mut dst, last);
             match result {
                 EncoderResult::InputEmpty => {
                     if last {
@@ -524,16 +528,14 @@ fn dispatch_test(encoding: &'static Encoding, data: &[u8]) {
     }
 }
 
-fuzz_target!(
-    |data: &[u8]| {
-        if let Some(first) = data.first() {
-            let index = *first as usize;
-            if index >= ENCODINGS.len() {
-                return;
-            }
-            let encoding = ENCODINGS[index];
-            dispatch_test(encoding, &data[1..]);
+fuzz_target!(|data: &[u8]| {
+    if let Some(first) = data.first() {
+        let index = *first as usize;
+        if index >= ENCODINGS.len() {
+            return;
         }
-        // Comment to make rustfmt not introduce a compilation error
+        let encoding = ENCODINGS[index];
+        dispatch_test(encoding, &data[1..]);
     }
-);
+    // Comment to make rustfmt not introduce a compilation error
+});

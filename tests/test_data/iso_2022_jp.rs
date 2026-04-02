@@ -1,4 +1,4 @@
-use encoding_rs::*;
+use encoding_rs2::*;
 
 #[test]
 #[cfg_attr(miri, ignore)] // Miri is too slow

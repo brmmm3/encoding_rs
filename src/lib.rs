@@ -93,7 +93,7 @@
 //!
 //! ```
 //! #[cfg(feature = "alloc")] {
-//! use encoding_rs::*;
+//! use encoding_rs2::*;
 //!
 //! let expectation = "\u{30CF}\u{30ED}\u{30FC}\u{30FB}\u{30EF}\u{30FC}\u{30EB}\u{30C9}";
 //! let bytes = b"\x83n\x83\x8D\x81[\x81E\x83\x8F\x81[\x83\x8B\x83h";
@@ -108,7 +108,7 @@
 //! Decode using the streaming API with minimal `unsafe`:
 //!
 //! ```
-//! use encoding_rs::*;
+//! use encoding_rs2::*;
 //!
 //! let expectation = "\u{30CF}\u{30ED}\u{30FC}\u{30FB}\u{30EF}\u{30FC}\u{30EB}\u{30C9}";
 //!
@@ -584,13 +584,13 @@
 //! <tr><th>rust-encoding</th><th>encoding_rs</th></tr>
 //! </thead>
 //! <tbody>
-//! <tr><td><code>encoding::EncodingRef</code></td><td><code>&amp;'static encoding_rs::Encoding</code></td></tr>
-//! <tr><td><code>encoding::all::<var>WINDOWS_31J</var></code> (not based on the WHATWG name for some encodings)</td><td><code>encoding_rs::<var>SHIFT_JIS</var></code> (always the WHATWG name uppercased and hyphens replaced with underscores)</td></tr>
+//! <tr><td><code>encoding::EncodingRef</code></td><td><code>&amp;'static encoding_rs2::Encoding</code></td></tr>
+//! <tr><td><code>encoding::all::<var>WINDOWS_31J</var></code> (not based on the WHATWG name for some encodings)</td><td><code>encoding_rs2::<var>SHIFT_JIS</var></code> (always the WHATWG name uppercased and hyphens replaced with underscores)</td></tr>
 //! <tr><td><code>encoding::all::ERROR</code></td><td>Not available because not in the Encoding Standard</td></tr>
 //! <tr><td><code>encoding::all::ASCII</code></td><td>Not available because not in the Encoding Standard</td></tr>
 //! <tr><td><code>encoding::all::ISO_8859_1</code></td><td>Not available because not in the Encoding Standard</td></tr>
 //! <tr><td><code>encoding::all::HZ</code></td><td>Not available because not in the Encoding Standard</td></tr>
-//! <tr><td><code>encoding::label::encoding_from_whatwg_label(<var>string</var>)</code></td><td><code>encoding_rs::Encoding::for_label(<var>string</var>)</code></td></tr>
+//! <tr><td><code>encoding::label::encoding_from_whatwg_label(<var>string</var>)</code></td><td><code>encoding_rs2::Encoding::for_label(<var>string</var>)</code></td></tr>
 //! <tr><td><code><var>enc</var>.whatwg_name()</code> (always lower case)</td><td><code><var>enc</var>.name()</code> (potentially mixed case)</td></tr>
 //! <tr><td><code><var>enc</var>.name()</code></td><td>Not available because not in the Encoding Standard</td></tr>
 //! <tr><td><code>encoding::decode(<var>bytes</var>, encoding::DecoderTrap::Replace, <var>enc</var>)</code></td><td><code><var>enc</var>.decode(<var>bytes</var>)</code></td></tr>
@@ -598,8 +598,8 @@
 //! <tr><td><code><var>enc</var>.encode(<var>string</var>, encoding::EncoderTrap::NcrEscape)</code></td><td><code><var>enc</var>.encode(<var>string</var>)</code></td></tr>
 //! <tr><td><code><var>enc</var>.raw_decoder()</code></td><td><code><var>enc</var>.new_decoder_without_bom_handling()</code></td></tr>
 //! <tr><td><code><var>enc</var>.raw_encoder()</code></td><td><code><var>enc</var>.new_encoder()</code></td></tr>
-//! <tr><td><code>encoding::RawDecoder</code></td><td><code>encoding_rs::Decoder</code></td></tr>
-//! <tr><td><code>encoding::RawEncoder</code></td><td><code>encoding_rs::Encoder</code></td></tr>
+//! <tr><td><code>encoding::RawDecoder</code></td><td><code>encoding_rs2::Decoder</code></td></tr>
+//! <tr><td><code>encoding::RawEncoder</code></td><td><code>encoding_rs2::Encoder</code></td></tr>
 //! <tr><td><code><var>raw_decoder</var>.raw_feed(<var>src</var>, <var>dst_string</var>)</code></td><td><code><var>dst_string</var>.reserve(<var>decoder</var>.max_utf8_buffer_length_without_replacement(<var>src</var>.len()));<br><var>decoder</var>.decode_to_string_without_replacement(<var>src</var>, <var>dst_string</var>, false)</code></td></tr>
 //! <tr><td><code><var>raw_encoder</var>.raw_feed(<var>src</var>, <var>dst_vec</var>)</code></td><td><code><var>dst_vec</var>.reserve(<var>encoder</var>.max_buffer_length_from_utf8_without_replacement(<var>src</var>.len()));<br><var>encoder</var>.encode_from_utf8_to_vec_without_replacement(<var>src</var>, <var>dst_vec</var>, false)</code></td></tr>
 //! <tr><td><code><var>raw_decoder</var>.raw_finish(<var>dst</var>)</code></td><td><code><var>dst_string</var>.reserve(<var>decoder</var>.max_utf8_buffer_length_without_replacement(0));<br><var>decoder</var>.decode_to_string_without_replacement(b"", <var>dst</var>, true)</code></td></tr>
@@ -2732,14 +2732,14 @@ impl Encoding {
     ///
     /// # Example
     /// ```
-    /// use encoding_rs::Encoding;
+    /// use encoding_rs2::Encoding;
     ///
-    /// assert_eq!(Some(encoding_rs::UTF_8), Encoding::for_label(b"utf-8"));
-    /// assert_eq!(Some(encoding_rs::UTF_8), Encoding::for_label(b"unicode11utf8"));
+    /// assert_eq!(Some(encoding_rs2::UTF_8), Encoding::for_label(b"utf-8"));
+    /// assert_eq!(Some(encoding_rs2::UTF_8), Encoding::for_label(b"unicode11utf8"));
     ///
-    /// assert_eq!(Some(encoding_rs::ISO_8859_2), Encoding::for_label(b"latin2"));
+    /// assert_eq!(Some(encoding_rs2::ISO_8859_2), Encoding::for_label(b"latin2"));
     ///
-    /// assert_eq!(Some(encoding_rs::UTF_16BE), Encoding::for_label(b"utf-16be"));
+    /// assert_eq!(Some(encoding_rs2::UTF_16BE), Encoding::for_label(b"utf-16be"));
     ///
     /// assert_eq!(None, Encoding::for_label(b"unrecognized label"));
     /// ```
@@ -3462,7 +3462,7 @@ impl Eq for Encoding {}
 #[cfg(test)]
 impl PartialOrd for Encoding {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other)) 
+        Some(self.cmp(other))
     }
 }
 
@@ -4353,9 +4353,7 @@ impl Decoder {
     /// Available via the C wrapper.
     pub fn latin1_byte_compatible_up_to(&self, bytes: &[u8]) -> Option<usize> {
         match self.life_cycle {
-            DecoderLifeCycle::Converting => {
-                self.variant.latin1_byte_compatible_up_to(bytes)
-            }
+            DecoderLifeCycle::Converting => self.variant.latin1_byte_compatible_up_to(bytes),
             DecoderLifeCycle::Finished => panic!("Must not use a decoder that has finished."),
             _ => None,
         }
@@ -5469,11 +5467,13 @@ mod tests {
 
     #[test]
     fn test_decode_bomful_invalid_utf8_to_cow_without_bom_handling_and_without_replacement() {
-        assert!(UTF_8
-            .decode_without_bom_handling_and_without_replacement(
-                b"\xEF\xBB\xBF\xE2\x82\xAC\x80\xC3\xA4"
-            )
-            .is_none());
+        assert!(
+            UTF_8
+                .decode_without_bom_handling_and_without_replacement(
+                    b"\xEF\xBB\xBF\xE2\x82\xAC\x80\xC3\xA4"
+                )
+                .is_none()
+        );
     }
 
     #[test]
@@ -5491,9 +5491,11 @@ mod tests {
 
     #[test]
     fn test_decode_invalid_windows_1257_to_cow_without_bom_handling_and_without_replacement() {
-        assert!(WINDOWS_1257
-            .decode_without_bom_handling_and_without_replacement(b"abc\x80\xA1\xE4")
-            .is_none());
+        assert!(
+            WINDOWS_1257
+                .decode_without_bom_handling_and_without_replacement(b"abc\x80\xA1\xE4")
+                .is_none()
+        );
     }
 
     #[test]
@@ -5904,10 +5906,12 @@ mod tests {
                 .unwrap(),
             1
         );
-        assert!(REPLACEMENT
-            .new_decoder_without_bom_handling()
-            .latin1_byte_compatible_up_to(buffer)
-            .is_none());
+        assert!(
+            REPLACEMENT
+                .new_decoder_without_bom_handling()
+                .latin1_byte_compatible_up_to(buffer)
+                .is_none()
+        );
         assert_eq!(
             SHIFT_JIS
                 .new_decoder_without_bom_handling()
@@ -5922,14 +5926,18 @@ mod tests {
                 .unwrap(),
             1
         );
-        assert!(UTF_16BE
-            .new_decoder_without_bom_handling()
-            .latin1_byte_compatible_up_to(buffer)
-            .is_none());
-        assert!(UTF_16LE
-            .new_decoder_without_bom_handling()
-            .latin1_byte_compatible_up_to(buffer)
-            .is_none());
+        assert!(
+            UTF_16BE
+                .new_decoder_without_bom_handling()
+                .latin1_byte_compatible_up_to(buffer)
+                .is_none()
+        );
+        assert!(
+            UTF_16LE
+                .new_decoder_without_bom_handling()
+                .latin1_byte_compatible_up_to(buffer)
+                .is_none()
+        );
         assert_eq!(
             ISO_2022_JP
                 .new_decoder_without_bom_handling()
@@ -6142,10 +6150,12 @@ mod tests {
             1
         );
 
-        assert!(UTF_8
-            .new_decoder()
-            .latin1_byte_compatible_up_to(buffer)
-            .is_none());
+        assert!(
+            UTF_8
+                .new_decoder()
+                .latin1_byte_compatible_up_to(buffer)
+                .is_none()
+        );
 
         let mut decoder = UTF_8.new_decoder();
         let mut output = [0u16; 4];
