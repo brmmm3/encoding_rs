@@ -31,12 +31,12 @@ use alloc::string::String;
 #[cfg(feature = "alloc")]
 use alloc::vec::Vec;
 
+use super::DecoderResult;
+use super::in_inclusive_range8;
 use super::in_inclusive_range16;
 use super::in_inclusive_range32;
-use super::in_inclusive_range8;
 use super::in_range16;
 use super::in_range32;
-use super::DecoderResult;
 use crate::ascii::*;
 use crate::utf_8::*;
 
